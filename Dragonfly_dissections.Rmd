@@ -1,0 +1,57 @@
+---
+title: "Dragonfly_dissections"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(glmmTMB)
+library(bbmle)
+library(ggplot2)
+library(sjPlot)
+library(DHARMa)
+library(dplyr)
+library(ggeffects)
+library(emmeans)
+```
+
+```{r}
+dflies_raw <- read.csv("Dragonfly_dissection_data.csv")
+
+dflies_nymphs <- dflies_raw %>% filter(Adult_nymph=="nymph")
+dflies_nymphs <- dflies_nymphs %>% mutate(Anis_Zyg = ifelse(Genus == "Lestes" | Genus == "Enallagma" | Genus == "Ischnura" | Genus == "Damsel", "Zygoptera", "Anisoptera"))
+
+```
+
+# Size + species + time models 
+## Hali
+```{r}
+dfly1 <- glmmTMB(Hali ~ Month_collected + Anis_Zyg + log(Body_length), family=nbinom2, data=dflies_nymphs)
+dfly2 <- glmmTMB(Hali ~Anis_Zyg + log(Body_length), family=nbinom2, data=dflies_nymphs)
+dfly3 <- glmmTMB(Hali ~Anis_Zyg*log(Body_length), family=nbinom2, data=dflies_nymphs)
+dfly4 <- glmmTMB(Hali ~Anis_Zyg*log(Body_length) + Month_collected, family=nbinom2, data=dflies_nymphs)
+dfly5 <- glmmTMB(Hali ~Anis_Zyg, family=nbinom2, data=dflies_nymphs)
+dfly6 <- glmmTMB(Hali ~Month_collected, family=nbinom2, data=dflies_nymphs)
+dfly7 <- glmmTMB(Hali ~log(Body_length), family=nbinom2, data=dflies_nymphs)
+dfly8 <- glmmTMB(Hali ~log(Body_length)+Month_collected, family=nbinom2, data=dflies_nymphs)
+dfly9 <- glmmTMB(Hali ~1, family=nbinom2, data=dflies_nymphs)
+
+ICtab(dfly1, dfly2, dfly3, dfly4, dfly5, dfly6, dfly7, dfly8, dfly9,weights=TRUE)
+```
+
+```{r}
+plot(simulateResiduals(dfly1))
+```
+
+```{r}
+
+```
+
+
+## Haem
+```{r}
+
+```
